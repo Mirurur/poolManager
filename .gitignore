@@ -1,0 +1,5 @@
+# 项目排除路径
+/manager-client/target/
+/manager-common/target/
+/manager-server/target/
+.idea
