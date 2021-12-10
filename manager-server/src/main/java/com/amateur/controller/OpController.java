@@ -1,13 +1,13 @@
 package com.amateur.controller;
 
 import com.amateur.handler.PoolServerHandler;
-import com.amateur.pool.PoolParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.amateur.pool.PoolInfoContainer;
+import com.amateur.pool.info.PoolParam;
+import com.amateur.pool.info.ClientPoolInfo;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * @author yeyu
@@ -20,8 +20,16 @@ public class OpController {
     @Resource
     private PoolServerHandler handler;
 
+    @Resource
+    private PoolInfoContainer container;
+
     @PostMapping("modify")
     public Boolean modify(@RequestBody PoolParam param) {
         return handler.modifyPoolInfo(param);
+    }
+
+    @GetMapping("all")
+    public Map<String, ClientPoolInfo> all() {
+        return container.getMap();
     }
 }
