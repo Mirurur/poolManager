@@ -52,7 +52,7 @@ public class ThreadPoolManagerServer implements Runnable, DisposableBean {
                 @Override
                 public void operationComplete(ChannelFuture channelFuture) throws Exception {
                     if (channelFuture.isSuccess()) {
-                        log.info("-------------pool server start success");
+                        log.info("pool server start success,bind:{}",8888);
                     }
                 }
             });

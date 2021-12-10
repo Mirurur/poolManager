@@ -2,7 +2,6 @@ package com.amateur.pool;
 
 import com.amateur.annotation.PoolControl;
 import com.amateur.pool.info.ClientPoolInfo;
-import com.amateur.pool.info.PoolInfo;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -32,24 +31,34 @@ public class PoolInfoDetector implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         Map<String, Object> beansWithAnnotation = applicationContext.getBeansWithAnnotation(PoolControl.class);
-        List<PoolInfo> list = new ArrayList<>();
+        List<ClientPoolInfo.PoolInfo> list = new ArrayList<>();
         beansWithAnnotation.forEach((k, v) -> {
             if (ExecutorService.class.isAssignableFrom(v.getClass())) {
-                list.add(getPoolInfo((ExecutorService) v));
+                list.add(getPoolInfo((ExecutorService) v,k));
             }
         });
         clientPoolInfo.setList(list);
 
     }
 
-    public PoolInfo getPoolInfo(ExecutorService executor) {
-        PoolInfo poolInfo = new PoolInfo();
+    /**
+     * Spring Boot中有两种创建线程池的方式
+     * <li>通过JDK原生ThreadPoolExecutor创建</li>
+     * <li>通过SpringBoot提供的ThreadPoolTaskExecutor</li>
+     * @param executor 线程池
+     * @param beanName Spring容器中Bean名称
+     * @return 线程池信息
+     * TODO 待修改
+     */
+    public ClientPoolInfo.PoolInfo getPoolInfo(ExecutorService executor,String beanName) {
+        ClientPoolInfo.PoolInfo poolInfo = new ClientPoolInfo.PoolInfo();
+        poolInfo.setBeanName(beanName);
         if (executor instanceof ThreadPoolExecutor) {
             ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
             poolInfo.setCorePoolSize(threadPoolExecutor.getCorePoolSize());
             poolInfo.setMaximumPoolSize(threadPoolExecutor.getMaximumPoolSize());
             poolInfo.setKeepAliveTime(threadPoolExecutor.getKeepAliveTime(TimeUnit.SECONDS));
-        } else {
+        } else if (executor instanceof ThreadPoolTaskExecutor) {
             ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) executor;
             poolInfo.setKeepAliveTime(taskExecutor.getKeepAliveSeconds());
             poolInfo.setCorePoolSize(taskExecutor.getCorePoolSize());

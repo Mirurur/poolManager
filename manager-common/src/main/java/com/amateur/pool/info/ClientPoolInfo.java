@@ -10,5 +10,14 @@ import java.util.List;
  */
 @Data
 public class ClientPoolInfo {
+
     private List<PoolInfo> list;
+
+    @Data
+    public static class PoolInfo {
+        private String beanName;
+        private int corePoolSize;
+        private int maximumPoolSize;
+        private long keepAliveTime;
+    }
 }
