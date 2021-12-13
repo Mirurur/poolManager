@@ -2,7 +2,9 @@ package com.amateur.config;
 
 import com.amateur.client.ThreadPoolManagerClient;
 import com.amateur.handler.PoolClientHandler;
-import com.amateur.pool.PoolInfoDetector;
+import com.amateur.pool.DefaultPoolInfoDetector;
+import com.amateur.pool.InfoDetector;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,8 +28,9 @@ public class ClientAutoConfiguration implements ApplicationListener<ContextRefre
     }
 
     @Bean
-    public PoolInfoDetector poolInfoDetector() {
-        return new PoolInfoDetector();
+    @ConditionalOnMissingBean(value = InfoDetector.class)
+    public DefaultPoolInfoDetector defaultPoolInfoDetector() {
+        return new DefaultPoolInfoDetector();
     }
 
     @Override
