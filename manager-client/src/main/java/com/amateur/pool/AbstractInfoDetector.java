@@ -8,7 +8,7 @@ import com.amateur.pool.info.ClientPoolInfo;
  */
 public abstract class AbstractInfoDetector implements InfoDetector {
 
-    ClientPoolInfo clientPoolInfo;
+    private final ClientPoolInfo clientPoolInfo;
 
     public AbstractInfoDetector() {
         clientPoolInfo = new ClientPoolInfo();

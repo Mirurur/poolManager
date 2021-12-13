@@ -51,8 +51,8 @@ public class DefaultPoolInfoDetector extends AbstractInfoDetector implements App
             poolInfoList.add(poolInfo);
             executorMap.put(k,poolExecutor);
         });
-        clientPoolInfo.getPoolInfoList().addAll(poolInfoList);
-        clientPoolInfo.getPoolExecutorMap().putAll(executorMap);
+        getClientPoolInfo().getPoolInfoList().addAll(poolInfoList);
+        getClientPoolInfo().getPoolExecutorMap().putAll(executorMap);
     }
 
     private ClientPoolInfo.PoolInfo getPoolInfo(String beanName, ThreadPoolExecutor executor) {

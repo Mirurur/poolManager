@@ -1,8 +1,13 @@
 package com.amateur.client;
 
+import com.amateur.config.ConnectConfig;
 import com.amateur.handler.PoolClientHandler;
+import com.amateur.listener.RetryListener;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -11,10 +16,8 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
-import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -24,20 +27,23 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ThreadPoolManagerClient implements Runnable, DisposableBean {
 
-    private EventLoopGroup workGroup;
-
     @Resource
     private PoolClientHandler poolClientHandler;
 
-    @Value("${pool.server.ip:127.0.0.1}")
-    private String ip;
+    private final ConnectConfig connectConfig;
 
-    @Value("${pool.server.port:8888}")
-    private Integer port;
+    private final EventLoopGroup workGroup;
+
+    private final RetryListener retryListener;
+
+    public ThreadPoolManagerClient(ConnectConfig connectConfig) {
+        this.connectConfig = connectConfig;
+        this.workGroup = new NioEventLoopGroup();
+        this.retryListener = new RetryListener(connectConfig);
+    }
 
     @Override
     public void run() {
-        workGroup = new NioEventLoopGroup();
         try {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(workGroup)
@@ -55,22 +61,7 @@ public class ThreadPoolManagerClient implements Runnable, DisposableBean {
                                     .addLast(poolClientHandler);
                         }
                     });
-            ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress(ip, port)).addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                    if (!channelFuture.isSuccess()) {
-                        EventLoop eventLoop = channelFuture.channel().eventLoop();
-                        // 连接不上 重新连接
-                        eventLoop.schedule(() -> {
-                            log.info("try to reconnect server...");
-                            bootstrap.connect(new InetSocketAddress(ip, port)).addListener(this);
-                        }, 3, TimeUnit.SECONDS);
-                    }
-                    if (channelFuture.isSuccess()) {
-                        log.info("client start success,connected ip:{},port:{}", ip, port);
-                    }
-                }
-            });
+            ChannelFuture channelFuture = bootstrap.connect(connectConfig.getDefaultConnectAddress()).addListener(retryListener);
             channelFuture.channel().closeFuture().sync();
         } catch (Exception e) {
             e.printStackTrace();
@@ -80,7 +71,6 @@ public class ThreadPoolManagerClient implements Runnable, DisposableBean {
 
     @Override
     public void destroy() throws Exception {
-        assert workGroup != null;
         workGroup.shutdownGracefully();
         log.info("client shut down...");
     }

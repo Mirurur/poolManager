@@ -1,14 +1,16 @@
 package com.amateur.handler;
 
 import com.alibaba.fastjson.JSON;
+import com.amateur.config.ConnectConfig;
+import com.amateur.listener.RetryListener;
 import com.amateur.pool.AbstractInfoDetector;
-import com.amateur.pool.DefaultPoolInfoDetector;
 import com.amateur.pool.info.ClientPoolInfo;
 import com.amateur.pool.info.PoolParam;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -20,12 +22,14 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 @ChannelHandler.Sharable
+@Slf4j
 public class PoolClientHandler extends SimpleChannelInboundHandler<String> {
-
-    private int retryTimes = 0;
 
     @Resource
     private AbstractInfoDetector infoDetector;
+
+    @Resource
+    private ConnectConfig connectConfig;
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -38,7 +42,7 @@ public class PoolClientHandler extends SimpleChannelInboundHandler<String> {
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
         System.out.println("receive from server:" + msg);
         PoolParam poolParam = JSON.parseObject(msg, PoolParam.class);
-        infoDetector.getClientPoolInfo().getPoolExecutorMap().forEach((k,v) -> {
+        infoDetector.getClientPoolInfo().getPoolExecutorMap().forEach((k, v) -> {
             if (k.equals(poolParam.getBeanName())) {
                 v.setCorePoolSize(poolParam.getCorePoolSize());
                 v.setMaximumPoolSize(poolParam.getMaxPoolSize());
@@ -60,6 +64,11 @@ public class PoolClientHandler extends SimpleChannelInboundHandler<String> {
         ctx.writeAndFlush(JSON.toJSONString(infoDetector.getClientPoolInfo()));
     }
 
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        log.warn("disconnect from server,try to reconnect server");
+        ctx.channel().connect(connectConfig.getDefaultConnectAddress()).addListener(new RetryListener(connectConfig));
+    }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
