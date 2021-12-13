@@ -3,3 +3,5 @@
 /manager-common/target/
 /manager-server/target/
 .idea
+
+*.iml
