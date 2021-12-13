@@ -1,11 +1,15 @@
 package com.amateur.handler;
 
 import com.alibaba.fastjson.JSON;
+
+import com.amateur.pool.Detector;
+
 import com.amateur.config.ConnectConfig;
 import com.amateur.listener.RetryListener;
 import com.amateur.pool.AbstractInfoDetector;
 import com.amateur.pool.info.ClientPoolInfo;
 import com.amateur.pool.info.PoolParam;
+
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -26,14 +30,19 @@ import java.util.concurrent.TimeUnit;
 public class PoolClientHandler extends SimpleChannelInboundHandler<String> {
 
     @Resource
+
+    private Detector detector;
+
     private AbstractInfoDetector infoDetector;
 
     @Resource
     private ConnectConfig connectConfig;
 
+
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
+            ctx.writeAndFlush(JSON.toJSONString(detector.getClientInfo()));
             ctx.writeAndFlush(JSON.toJSONString(infoDetector.getClientPoolInfo()));
         }
     }
@@ -60,6 +69,7 @@ public class PoolClientHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        ctx.writeAndFlush(JSON.toJSONString(detector.getClientInfo()));
         infoDetector.saveInfo();
         ctx.writeAndFlush(JSON.toJSONString(infoDetector.getClientPoolInfo()));
     }

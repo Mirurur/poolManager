@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class CustomThreadPoolExecutorConfiguration {
     @Bean("threadPoolExecutor1")
-    @PoolControl
+    @PoolControl()
     public ThreadPoolExecutor threadPoolExecutor() {
         return new ThreadPoolExecutor(2, 5, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     }
