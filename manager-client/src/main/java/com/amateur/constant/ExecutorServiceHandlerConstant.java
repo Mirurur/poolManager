@@ -5,7 +5,7 @@ package com.amateur.constant;
  */
 public class ExecutorServiceHandlerConstant {
 
-    public static final String THREADPOOL_EXECUTOR_HANDLER = "threadPoolExecutorHandler";
+    public static final String THREAD_POOL_EXECUTOR_HANDLER = "threadPoolExecutorHandler";
 
-    public static final String THREADPOOL_TASK_EXECUTOR_HANDLER = "threadPoolTaskExecutorHandler";
+    public static final String THREAD_POOL_TASK_EXECUTOR_HANDLER = "threadPoolTaskExecutorHandler";
 }

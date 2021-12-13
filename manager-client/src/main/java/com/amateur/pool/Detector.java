@@ -8,5 +8,5 @@ import com.amateur.pool.info.ClientInfo;
  */
 public interface Detector {
 
-    ClientInfo getClientInfo();
+    ClientInfo saveClientInfo();
 }

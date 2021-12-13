@@ -10,10 +10,10 @@ import java.util.concurrent.ExecutorService;
 /**
  * @author sun
  */
-@Component(ExecutorServiceHandlerConstant.THREADPOOL_TASK_EXECUTOR_HANDLER)
+@Component(ExecutorServiceHandlerConstant.THREAD_POOL_TASK_EXECUTOR_HANDLER)
 public class ThreadPoolTaskExecutorHandler implements ExecutorServiceHandler{
 
-    private final String beanName = ExecutorServiceHandlerConstant.THREADPOOL_TASK_EXECUTOR_HANDLER;
+    private final String beanName = ExecutorServiceHandlerConstant.THREAD_POOL_TASK_EXECUTOR_HANDLER;
 
     private ExecutorServiceHandler delegate;
 

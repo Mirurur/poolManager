@@ -2,15 +2,10 @@ package com.amateur.config;
 
 import com.amateur.client.ThreadPoolManagerClient;
 import com.amateur.handler.PoolClientHandler;
-
 import com.amateur.pool.DefaultDetector;
 import com.amateur.pool.Detector;
-import com.amateur.pool.PoolInfoDetector;
 import com.amateur.util.SpringUtil;
-
-import com.amateur.pool.DefaultPoolInfoDetector;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,10 +38,7 @@ public class ClientAutoConfiguration implements ApplicationListener<ContextRefre
     public Detector detector() {
         return new DefaultDetector();
     }
-  
-    public DefaultPoolInfoDetector defaultPoolInfoDetector() {
-        return new DefaultPoolInfoDetector();
-    }
+
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {

@@ -11,10 +11,10 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author sun
  */
-@Component(ExecutorServiceHandlerConstant.THREADPOOL_EXECUTOR_HANDLER)
+@Component(ExecutorServiceHandlerConstant.THREAD_POOL_EXECUTOR_HANDLER)
 public class ThreadPoolExecutorHandler implements ExecutorServiceHandler{
 
-    private final String beanName = ExecutorServiceHandlerConstant.THREADPOOL_EXECUTOR_HANDLER;
+    private final String beanName = ExecutorServiceHandlerConstant.THREAD_POOL_EXECUTOR_HANDLER;
 
     private ExecutorServiceHandler delegate;
 

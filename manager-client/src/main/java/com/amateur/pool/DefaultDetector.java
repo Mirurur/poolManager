@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * @author sun
  */
-public class DefaultDetector extends BaseDetector{
+public class DefaultDetector extends BaseDetector {
 
     @Override
     public PoolInfo getPoolInfo(String beanName, ExecutorService executor) {

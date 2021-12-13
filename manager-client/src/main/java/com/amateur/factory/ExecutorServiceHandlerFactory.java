@@ -4,6 +4,7 @@ import com.amateur.constant.ExecutorServiceHandlerConstant;
 import com.amateur.handler.executorservice.ExecutorServiceHandler;
 import com.amateur.handler.executorservice.ThreadPoolExecutorHandler;
 import com.amateur.handler.executorservice.ThreadPoolTaskExecutorHandler;
+import com.amateur.util.SpringUtil;
 
 import java.util.*;
 
@@ -17,9 +18,10 @@ public class ExecutorServiceHandlerFactory {
 
     //todo: 通过SPI加载子类 or 将子类添加到ioc中，在启动后获取ioc容器中父类型为ExecutorServiceHandler的子类
     static {
+        SpringUtil.getBeansWithAnnotation()
         HashMap<String, ExecutorServiceHandler> map = new HashMap<>();
-        map.put(ExecutorServiceHandlerConstant.THREADPOOL_EXECUTOR_HANDLER, new ThreadPoolExecutorHandler());
-        map.put(ExecutorServiceHandlerConstant.THREADPOOL_TASK_EXECUTOR_HANDLER, new ThreadPoolTaskExecutorHandler());
+        map.put(ExecutorServiceHandlerConstant.THREAD_POOL_EXECUTOR_HANDLER, new ThreadPoolExecutorHandler());
+        map.put(ExecutorServiceHandlerConstant.THREAD_POOL_TASK_EXECUTOR_HANDLER, new ThreadPoolTaskExecutorHandler());
         handlerMap = Collections.unmodifiableMap(map);
     }
 
