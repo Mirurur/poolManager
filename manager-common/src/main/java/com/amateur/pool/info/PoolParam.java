@@ -1,4 +1,4 @@
-package com.amateur.pool;
+package com.amateur.pool.info;
 
 import lombok.Data;
 

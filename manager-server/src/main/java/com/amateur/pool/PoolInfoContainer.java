@@ -16,4 +16,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PoolInfoContainer {
 
     private Map<String, ClientPoolInfo> map = new ConcurrentHashMap<>(16);
+
+    public void clear() {
+        map.clear();
+    }
+
+    public void clearByAddress(String remoteAddress) {
+        map.remove(remoteAddress);
+    }
 }

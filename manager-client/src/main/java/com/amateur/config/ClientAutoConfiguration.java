@@ -2,10 +2,15 @@ package com.amateur.config;
 
 import com.amateur.client.ThreadPoolManagerClient;
 import com.amateur.handler.PoolClientHandler;
+
 import com.amateur.pool.DefaultDetector;
 import com.amateur.pool.Detector;
 import com.amateur.pool.PoolInfoDetector;
 import com.amateur.util.SpringUtil;
+
+import com.amateur.pool.DefaultPoolInfoDetector;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,11 +21,17 @@ import org.springframework.context.event.ContextRefreshedEvent;
  * @date 2021/12/9 16:55
  */
 @Configuration
+@EnableConfigurationProperties(ConnectConfig.class)
 public class ClientAutoConfiguration implements ApplicationListener<ContextRefreshedEvent> {
 
     @Bean
+    public ConnectConfig connectConfig() {
+        return new ConnectConfig();
+    }
+
+    @Bean
     public ThreadPoolManagerClient threadPoolManagerClient() {
-        return new ThreadPoolManagerClient();
+        return new ThreadPoolManagerClient(connectConfig());
     }
 
     @Bean
@@ -31,6 +42,10 @@ public class ClientAutoConfiguration implements ApplicationListener<ContextRefre
     @Bean
     public Detector detector() {
         return new DefaultDetector();
+    }
+  
+    public DefaultPoolInfoDetector defaultPoolInfoDetector() {
+        return new DefaultPoolInfoDetector();
     }
 
     @Override

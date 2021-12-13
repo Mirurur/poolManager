@@ -2,7 +2,7 @@ package com.amateur.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.amateur.pool.PoolInfoContainer;
-import com.amateur.pool.PoolParam;
+import com.amateur.pool.info.PoolParam;
 import com.amateur.pool.info.ClientPoolInfo;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
@@ -36,7 +36,6 @@ public class PoolServerHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-        log.info("receive from client:{}",msg);
         ClientPoolInfo clientPoolInfo = JSON.parseObject(msg, ClientPoolInfo.class);
         String remoteAddress = ctx.channel().remoteAddress().toString().substring(1);
         poolInfoContainer.getMap().put(remoteAddress,clientPoolInfo);
@@ -51,22 +50,26 @@ public class PoolServerHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        log.info("client [{}] is inactive",ctx.channel().remoteAddress().toString().substring(1));
+        String remoteAddress = ctx.channel().remoteAddress().toString().substring(1);
+        poolInfoContainer.clearByAddress(remoteAddress);
+        log.info("client [{}] is inactive",remoteAddress);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.info("client [{}] is inactive because of exception",ctx.channel().remoteAddress().toString().substring(1));
+        String remoteAddress = ctx.channel().remoteAddress().toString().substring(1);
+        poolInfoContainer.clearByAddress(remoteAddress);
         ctx.close();
+        log.info("client [{}] is inactive because of exception",remoteAddress,cause);
     }
 
     public Boolean modifyPoolInfo(PoolParam param) {
         ClientPoolInfo clientPoolInfo = poolInfoContainer.getMap().get(param.getRemoteAddress());
-        if (clientPoolInfo == null || CollectionUtils.isEmpty(clientPoolInfo.getList())) {
+        if (clientPoolInfo == null || CollectionUtils.isEmpty(clientPoolInfo.getPoolInfoList())) {
             return Boolean.FALSE;
         }
 
-        ClientPoolInfo.PoolInfo poolInfo = clientPoolInfo.getList().stream()
+        ClientPoolInfo.PoolInfo poolInfo = clientPoolInfo.getPoolInfoList().stream()
                 .filter(it -> it.getBeanName().equals(param.getBeanName()))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("not found beanName：" + param.getBeanName()));
@@ -80,7 +83,7 @@ public class PoolServerHandler extends SimpleChannelInboundHandler<String> {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("not found channel with remoteAddress:" + param.getRemoteAddress()));
 
-        channel.writeAndFlush(JSON.toJSONString(poolInfo));
+        channel.writeAndFlush(JSON.toJSONString(param));
 
         return Boolean.TRUE;
     }
