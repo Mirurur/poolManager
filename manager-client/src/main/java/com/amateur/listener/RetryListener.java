@@ -1,6 +1,6 @@
 package com.amateur.listener;
 
-import com.amateur.config.ConnectConfig;
+import com.amateur.config.ConnectProperties;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -16,31 +16,31 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class RetryListener implements ChannelFutureListener {
 
-    private final ConnectConfig connectConfig;
+    private final ConnectProperties connectProperties;
 
     private int currentAddress = 0;
 
     private int retryTimes = 1;
 
-    public RetryListener(ConnectConfig connectConfig) {
-        this.connectConfig = connectConfig;
+    public RetryListener(ConnectProperties connectProperties) {
+        this.connectProperties = connectProperties;
     }
 
 
     @Override
     public void operationComplete(ChannelFuture channelFuture) throws Exception {
-        if (retryTimes >= connectConfig.getMaxRetryTimes()) {
+        if (retryTimes >= connectProperties.getMaxRetryTimes()) {
             log.warn("try to reconnect {} times,but failed", retryTimes);
             throw new RuntimeException("connected server filed");
         }
         Channel channel = channelFuture.channel();
-        InetSocketAddress socketAddress = connectConfig.getSocketAddressList().get(currentAddress);
+        InetSocketAddress socketAddress = connectProperties.getSocketAddressList().get(currentAddress);
         if (!channelFuture.isSuccess()) {
             channel.eventLoop().schedule(() -> {
                 log.info("try to reconnect server {} times", retryTimes);
                 channel.connect(socketAddress).addListener(RetryListener.this);
                 retryTimes++;
-                currentAddress = (++currentAddress) % connectConfig.getSocketAddressList().size();
+                currentAddress = (++currentAddress) % connectProperties.getSocketAddressList().size();
             }, 3, TimeUnit.SECONDS);
         }
         if (channelFuture.isSuccess()) {

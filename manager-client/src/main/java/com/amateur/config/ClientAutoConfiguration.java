@@ -2,8 +2,6 @@ package com.amateur.config;
 
 import com.amateur.client.ThreadPoolManagerClient;
 import com.amateur.handler.PoolClientHandler;
-import com.amateur.pool.DefaultDetector;
-import com.amateur.pool.Detector;
 import com.amateur.util.SpringUtil;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationListener;
@@ -16,12 +14,12 @@ import org.springframework.context.event.ContextRefreshedEvent;
  * @date 2021/12/9 16:55
  */
 @Configuration
-@EnableConfigurationProperties(ConnectConfig.class)
+@EnableConfigurationProperties(ConnectProperties.class)
 public class ClientAutoConfiguration implements ApplicationListener<ContextRefreshedEvent> {
 
     @Bean
-    public ConnectConfig connectConfig() {
-        return new ConnectConfig();
+    public ConnectProperties connectConfig() {
+        return new ConnectProperties();
     }
 
     @Bean
@@ -35,9 +33,9 @@ public class ClientAutoConfiguration implements ApplicationListener<ContextRefre
     }
 
     @Bean
-    public Detector detector() {
-        return new DefaultDetector();
-    }
+//    public Detector detector() {
+//        return new DefaultPooInfoDetector();
+//    }
 
 
     @Override

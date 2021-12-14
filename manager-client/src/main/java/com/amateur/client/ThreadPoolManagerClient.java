@@ -1,6 +1,6 @@
 package com.amateur.client;
 
-import com.amateur.config.ConnectConfig;
+import com.amateur.config.ConnectProperties;
 import com.amateur.handler.PoolClientHandler;
 import com.amateur.listener.RetryListener;
 import io.netty.bootstrap.Bootstrap;
@@ -30,16 +30,16 @@ public class ThreadPoolManagerClient implements Runnable, DisposableBean {
     @Resource
     private PoolClientHandler poolClientHandler;
 
-    private final ConnectConfig connectConfig;
+    private final ConnectProperties connectProperties;
 
     private final EventLoopGroup workGroup;
 
     private final RetryListener retryListener;
 
-    public ThreadPoolManagerClient(ConnectConfig connectConfig) {
-        this.connectConfig = connectConfig;
+    public ThreadPoolManagerClient(ConnectProperties connectProperties) {
+        this.connectProperties = connectProperties;
         this.workGroup = new NioEventLoopGroup();
-        this.retryListener = new RetryListener(connectConfig);
+        this.retryListener = new RetryListener(connectProperties);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class ThreadPoolManagerClient implements Runnable, DisposableBean {
                                     .addLast(poolClientHandler);
                         }
                     });
-            ChannelFuture channelFuture = bootstrap.connect(connectConfig.getDefaultConnectAddress()).addListener(retryListener);
+            ChannelFuture channelFuture = bootstrap.connect(connectProperties.getDefaultConnectAddress()).addListener(retryListener);
             channelFuture.channel().closeFuture().sync();
         } catch (Exception e) {
             e.printStackTrace();

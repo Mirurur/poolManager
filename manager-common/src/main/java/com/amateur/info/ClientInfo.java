@@ -1,9 +1,8 @@
-package com.amateur.pool.info;
+package com.amateur.info;
 
 import lombok.Data;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 /**
  * 客户端信息

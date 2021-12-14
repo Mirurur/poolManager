@@ -1,12 +1,16 @@
 package com.amateur.util;
 
+import com.amateur.config.ConnectProperties;
+import com.amateur.detector.Detector;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import javax.annotation.Resource;
 import java.lang.annotation.Annotation;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,6 +44,7 @@ public class SpringUtil implements ApplicationContextAware {
         checkApplicationContext();
         return getApplicationContext().getBeansWithAnnotation(annotationType);
     }
+
 
     private static void checkApplicationContext() {
         Assert.notNull(applicationContext, "applicationContext未注入");

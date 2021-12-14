@@ -1,9 +1,6 @@
-package com.amateur.pool.info;
+package com.amateur.info;
 
 import lombok.Data;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * 线程池信息

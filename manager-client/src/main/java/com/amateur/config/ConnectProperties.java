@@ -12,11 +12,21 @@ import java.util.List;
  * @date 2021/12/13 9:26
  */
 @ConfigurationProperties(prefix = "pool")
-public class ConnectConfig {
+public class ConnectProperties {
 
     private List<String> addressList = Collections.singletonList("localhost:8888");
 
     private int maxRetryTimes = 3;
+
+    private String detectorPackage = "";
+
+    public String getDetectorPackage() {
+        return detectorPackage;
+    }
+
+    public void setDetectorPackage(String detectorPackage) {
+        this.detectorPackage = detectorPackage;
+    }
 
     public List<String> getAddressList() {
         return addressList;

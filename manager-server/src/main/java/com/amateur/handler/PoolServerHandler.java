@@ -1,9 +1,9 @@
 package com.amateur.handler;
 
 import com.alibaba.fastjson.JSON;
-import com.amateur.pool.PoolInfoContainer;
-import com.amateur.pool.info.PoolParam;
-import com.amateur.pool.info.ClientPoolInfo;
+import com.amateur.detector.PoolInfoContainer;
+import com.amateur.info.PoolParam;
+import com.amateur.info.ClientPoolInfo;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;

@@ -1,6 +1,6 @@
-package com.amateur.pool;
+package com.amateur.detector;
 
-import com.amateur.pool.info.ClientPoolInfo;
+import com.amateur.info.ClientPoolInfo;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
