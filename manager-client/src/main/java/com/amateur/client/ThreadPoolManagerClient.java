@@ -70,7 +70,7 @@ public class ThreadPoolManagerClient implements DisposableBean {
                 @Override
                 public void operationComplete(ChannelFuture channelFuture) throws Exception {
                     if (channelFuture.isSuccess()) {
-                        workGroup.shutdownGracefully();
+                        log.info("pool client channel has closed");
                     }
                 }
             });
