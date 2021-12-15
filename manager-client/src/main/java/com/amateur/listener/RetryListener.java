@@ -1,11 +1,11 @@
 package com.amateur.listener;
 
+import com.amateur.client.ThreadPoolManagerClient;
 import com.amateur.config.Properties;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.stereotype.Component;
 
@@ -24,10 +24,12 @@ public class RetryListener implements ChannelFutureListener {
     @Resource
     private Properties properties;
 
+    @Resource
+    private ThreadPoolManagerClient client;
+
     private int currentAddress = 0;
 
     private int retryTimes = 1;
-
 
 
     @Override
@@ -41,7 +43,7 @@ public class RetryListener implements ChannelFutureListener {
         if (!channelFuture.isSuccess()) {
             channel.eventLoop().schedule(() -> {
                 log.info("try to reconnect server {} times", retryTimes);
-                channel.connect(socketAddress).addListener(RetryListener.this);
+                client.connect();
                 retryTimes++;
                 currentAddress = (++currentAddress) % properties.getSocketAddressList().size();
             }, 3, TimeUnit.SECONDS);

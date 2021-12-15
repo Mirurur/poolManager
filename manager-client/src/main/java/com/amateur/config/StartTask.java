@@ -27,7 +27,7 @@ public class StartTask implements Runnable {
     @Override
     public void run() {
         // 启动client
-        client.run();
+        client.connect();
         // 加载Scanner
         Map<String, Scanner> beans = SpringUtil.getBeansWithClass(Scanner.class);
         // Scanner.scan()

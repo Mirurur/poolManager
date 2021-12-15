@@ -35,36 +35,42 @@ public class ThreadPoolManagerClient implements DisposableBean {
     @Resource
     private RetryListener retryListener;
 
-    private final EventLoopGroup workGroup;
+    private EventLoopGroup workGroup;
+
+    private Bootstrap bootstrap;
 
     public ThreadPoolManagerClient() {
-        this.workGroup = new NioEventLoopGroup();
+        init();
     }
 
-    public void run() {
+    private void init() {
+        workGroup = new NioEventLoopGroup();
+        bootstrap = new Bootstrap();
+        bootstrap.group(workGroup)
+                .channel(NioSocketChannel.class)
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        socketChannel.pipeline()
+                                // 使用JSON数据格式进行传输 所以用String编解码器
+                                .addLast(new StringEncoder())
+                                .addLast(new StringDecoder())
+                                // 当没有发生写事件时，每隔3秒向服务端发送连接池信息
+                                .addLast(new IdleStateHandler(0, 3, 0, TimeUnit.SECONDS))
+                                .addLast(poolClientHandler);
+                    }
+                });
+    }
+
+    public void connect() {
         try {
-            Bootstrap bootstrap = new Bootstrap();
-            bootstrap.group(workGroup)
-                    .channel(NioSocketChannel.class)
-                    .option(ChannelOption.SO_KEEPALIVE, true)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            socketChannel.pipeline()
-                                    // 使用JSON数据格式进行传输 所以用String编解码器
-                                    .addLast(new StringEncoder())
-                                    .addLast(new StringDecoder())
-                                    // 当没有发生写事件时，每隔3秒向服务端发送连接池信息
-                                    .addLast(new IdleStateHandler(0, 3, 0, TimeUnit.SECONDS))
-                                    .addLast(poolClientHandler);
-                        }
-                    });
             ChannelFuture channelFuture = bootstrap.connect(properties.getDefaultConnectAddress()).addListener(retryListener);
             channelFuture.channel().closeFuture().addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture channelFuture) throws Exception {
                     if (channelFuture.isSuccess()) {
-                        log.info("pool client is stopped");
+                        workGroup.shutdownGracefully();
                     }
                 }
             });
