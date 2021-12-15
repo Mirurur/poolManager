@@ -1,6 +1,7 @@
 package com.amateur.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -12,13 +13,24 @@ import java.util.List;
  * @date 2021/12/13 9:26
  */
 @ConfigurationProperties(prefix = "pool")
-public class ConnectProperties {
+@Component
+public class Properties {
 
     private List<String> addressList = Collections.singletonList("localhost:8888");
 
     private int maxRetryTimes = 3;
 
     private String detectorPackage = "";
+
+    private String workerPackage = "";
+
+    public String getWorkerPackage() {
+        return workerPackage;
+    }
+
+    public void setWorkerPackage(String workerPackage) {
+        this.workerPackage = workerPackage;
+    }
 
     public String getDetectorPackage() {
         return detectorPackage;

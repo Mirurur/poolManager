@@ -36,9 +36,7 @@ public class PoolServerHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-        ClientPoolInfo clientPoolInfo = JSON.parseObject(msg, ClientPoolInfo.class);
-        String remoteAddress = ctx.channel().remoteAddress().toString().substring(1);
-        poolInfoContainer.getMap().put(remoteAddress,clientPoolInfo);
+        log.info("receive from client:{}",msg);
 
     }
 

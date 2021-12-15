@@ -9,10 +9,6 @@ import lombok.Data;
  */
 @Data
 public class PoolInfo {
-    /**
-     * 全限定类名
-     */
-    private String fullClassName;
 
     /**
      * 线程池Bean名称
@@ -29,5 +25,4 @@ public class PoolInfo {
 
     private String threadFactoryFullyClassName;
 
-    private String handlerFullyClassName;
 }

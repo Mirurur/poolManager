@@ -5,5 +5,5 @@ package com.amateur.detector;
  */
 public interface Detector {
 
-    Object detect();
+    void detect();
 }

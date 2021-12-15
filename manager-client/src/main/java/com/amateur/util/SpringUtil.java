@@ -1,16 +1,13 @@
 package com.amateur.util;
 
-import com.amateur.config.ConnectProperties;
-import com.amateur.detector.Detector;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import javax.annotation.Resource;
 import java.lang.annotation.Annotation;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,7 +20,7 @@ public class SpringUtil implements ApplicationContextAware {
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-            SpringUtil.applicationContext = applicationContext;
+        SpringUtil.applicationContext = applicationContext;
     }
 
     public static ApplicationContext getApplicationContext() {
@@ -38,6 +35,11 @@ public class SpringUtil implements ApplicationContextAware {
     public static <T> T getBean(Class<T> clazz) {
         checkApplicationContext();
         return getApplicationContext().getBean(clazz);
+    }
+
+    public static <T> Map<String, T> getBeansWithClass(Class<T> clazz) {
+        checkApplicationContext();
+        return getApplicationContext().getBeansOfType(clazz,false,false);
     }
 
     public static <T extends Annotation> Map<String, Object> getBeansWithAnnotation(Class<T> annotationType) {

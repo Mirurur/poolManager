@@ -1,33 +1,25 @@
 package com.amateur.scanner;
 
-import java.util.Set;
+import com.amateur.config.Properties;
+import com.amateur.context.PoolContext;
 
 /**
  * @author yeyu
  * @date 2021/12/14 17:41
  */
 public abstract class AbstractScanner implements Scanner {
+
+    final Properties properties;
+
+    final PoolContext poolContext;
+
+    public AbstractScanner(Properties properties, PoolContext poolContext) {
+        this.properties = properties;
+        this.poolContext = poolContext;
+    }
+
     @Override
-    public void scan() {
-
-        Set<Class<?>> classes = doScan();
-
-        filterClasses(classes);
-
-        createBean(classes);
-
-    }
-
-    public abstract Set<Class<?>> doScan();
-
-    private void filterClasses(Set<Class<?>> classes) {
-        classes.removeIf(next -> !check(next));
-    }
-
-    public abstract boolean check(Class<?> clazz);
+    public abstract void scan();
 
 
-    private void createBean(Set<Class<?>> classes) {
-
-    }
 }

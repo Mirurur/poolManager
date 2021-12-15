@@ -1,9 +1,9 @@
 package com.amateur.handler;
 
 import com.alibaba.fastjson.JSON;
-import com.amateur.config.ConnectProperties;
+import com.amateur.config.Properties;
+import com.amateur.context.PoolContext;
 import com.amateur.listener.RetryListener;
-import com.amateur.detector.Detector;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -23,34 +23,36 @@ import javax.annotation.Resource;
 public class PoolClientHandler extends SimpleChannelInboundHandler<String> {
 
     @Resource
-    private Detector detector;
+    private Properties properties;
 
     @Resource
-    private ConnectProperties connectProperties;
+    private PoolContext poolContext;
 
+    @Resource
+    private RetryListener retryListener;
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
-            ctx.writeAndFlush(JSON.toJSONString(detector.detect()));
+            ctx.writeAndFlush(JSON.toJSONString(poolContext.getClientInfo()));
         }
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-        log.info("receive from server:{}",msg);
+        log.info("receive from server:{}", msg);
         //TODO: 更新线程池信息
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ctx.writeAndFlush(JSON.toJSONString(detector.detect()));
+        ctx.writeAndFlush(JSON.toJSONString(poolContext.getClientInfo()));
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         log.warn("disconnect from server,try to reconnect server");
-        ctx.channel().connect(connectProperties.getDefaultConnectAddress()).addListener(new RetryListener(connectProperties));
+        ctx.channel().connect(properties.getDefaultConnectAddress()).addListener(retryListener);
     }
 
     @Override

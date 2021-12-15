@@ -1,50 +1,33 @@
 package com.amateur.config;
 
 import com.amateur.client.ThreadPoolManagerClient;
-import com.amateur.handler.PoolClientHandler;
-import com.amateur.util.SpringUtil;
+import com.amateur.context.PoolContext;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
+
+import javax.annotation.Resource;
 
 /**
  * @author yeyu
  * @date 2021/12/9 16:55
  */
 @Configuration
-@EnableConfigurationProperties(ConnectProperties.class)
+@EnableConfigurationProperties(Properties.class)
+@ComponentScan(basePackages = {"com.amateur"})
 public class ClientAutoConfiguration implements ApplicationListener<ContextRefreshedEvent> {
 
-    @Bean
-    public ConnectProperties connectConfig() {
-        return new ConnectProperties();
-    }
+    @Resource
+    private ThreadPoolManagerClient client;
 
-    @Bean
-    public ThreadPoolManagerClient threadPoolManagerClient() {
-        return new ThreadPoolManagerClient(connectConfig());
-    }
-
-    @Bean
-    public PoolClientHandler poolClientHandler() {
-        return new PoolClientHandler();
-    }
-
-    @Bean
-//    public Detector detector() {
-//        return new DefaultPooInfoDetector();
-//    }
-
+    @Resource
+    private PoolContext poolContext;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        new Thread(threadPoolManagerClient()).start();
+        new Thread(new StartTask(client,poolContext)).start();
     }
 
-    @Bean
-    public SpringUtil springUtil() {
-        return new SpringUtil();
-    }
 }

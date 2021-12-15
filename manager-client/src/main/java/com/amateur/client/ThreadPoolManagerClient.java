@@ -1,13 +1,10 @@
 package com.amateur.client;
 
-import com.amateur.config.ConnectProperties;
+import com.amateur.config.Properties;
 import com.amateur.handler.PoolClientHandler;
 import com.amateur.listener.RetryListener;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -16,6 +13,7 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
@@ -25,24 +23,24 @@ import java.util.concurrent.TimeUnit;
  * @date 2021/11/22 14:55
  */
 @Slf4j
-public class ThreadPoolManagerClient implements Runnable, DisposableBean {
+@Component
+public class ThreadPoolManagerClient implements DisposableBean {
 
     @Resource
     private PoolClientHandler poolClientHandler;
 
-    private final ConnectProperties connectProperties;
+    @Resource
+    private Properties properties;
+
+    @Resource
+    private RetryListener retryListener;
 
     private final EventLoopGroup workGroup;
 
-    private final RetryListener retryListener;
-
-    public ThreadPoolManagerClient(ConnectProperties connectProperties) {
-        this.connectProperties = connectProperties;
+    public ThreadPoolManagerClient() {
         this.workGroup = new NioEventLoopGroup();
-        this.retryListener = new RetryListener(connectProperties);
     }
 
-    @Override
     public void run() {
         try {
             Bootstrap bootstrap = new Bootstrap();
@@ -61,8 +59,15 @@ public class ThreadPoolManagerClient implements Runnable, DisposableBean {
                                     .addLast(poolClientHandler);
                         }
                     });
-            ChannelFuture channelFuture = bootstrap.connect(connectProperties.getDefaultConnectAddress()).addListener(retryListener);
-            channelFuture.channel().closeFuture().sync();
+            ChannelFuture channelFuture = bootstrap.connect(properties.getDefaultConnectAddress()).addListener(retryListener);
+            channelFuture.channel().closeFuture().addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                    if (channelFuture.isSuccess()) {
+                        log.info("pool client is stopped");
+                    }
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
             workGroup.shutdownGracefully();
