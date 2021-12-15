@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2021/12/15 11:43
  */
 @Component
-public class DefaultWorker implements Worker {
+public class DefaultGetterWorker implements Worker {
 
     @Override
     public List<PoolInfo> handler(Map<String, Executor> beans) {
