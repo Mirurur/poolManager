@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -22,7 +22,7 @@ public class DefaultDetector implements Detector {
 
     private final PoolContext poolContext;
 
-    private final Map<String, LinkedList<Worker>> workerMap;
+    private final Map<String, List<Worker>> workerMap;
 
     @Autowired
     public DefaultDetector(PoolContext poolContext) {

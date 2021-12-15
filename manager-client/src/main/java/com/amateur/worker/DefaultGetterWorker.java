@@ -46,4 +46,9 @@ public class DefaultGetterWorker implements Worker {
     public String tag() {
         return WorkerGroupConstant.GETTER;
     }
+
+    @Override
+    public int getOrder() {
+        return 0;
+    }
 }

@@ -18,7 +18,7 @@ public class PoolContext {
 
     private final List<Detector> detectorList;
 
-    private final Map<String, LinkedList<Worker>> workerMap;
+    private final Map<String, List<Worker>> workerMap;
 
     private final ClientInfo clientInfo;
 
@@ -26,7 +26,7 @@ public class PoolContext {
         return clientInfo;
     }
 
-    public Map<String, LinkedList<Worker>> getWorkerMap() {
+    public Map<String, List<Worker>> getWorkerMap() {
         return workerMap;
     }
 
@@ -37,23 +37,15 @@ public class PoolContext {
         this.clientInfo.setPoolList(new ArrayList<>());
     }
 
-    public void addWorkerLast(Worker worker) {
-        LinkedList<Worker> workers = workerMap.get(worker.tag());
+    public void addWorker(Worker worker) {
+        List<Worker> workers = workerMap.get(worker.tag());
         if (CollectionUtils.isEmpty(workers)) {
             workers = new LinkedList<>();
             workerMap.put(worker.tag(),workers);
         }
-        workers.addLast(worker);
+        workers.add(worker);
     }
 
-    public void addWorkerBefore(Worker worker) {
-        LinkedList<Worker> workers = workerMap.get(worker.tag());
-        if (CollectionUtils.isEmpty(workers)) {
-            workers = new LinkedList<>();
-            workerMap.put(worker.tag(),workers);
-        }
-        workers.addFirst(worker);
-    }
 
     public void addPoolInfo(List<PoolInfo> poolInfoList) {
         this.clientInfo.getPoolList().addAll(poolInfoList);
