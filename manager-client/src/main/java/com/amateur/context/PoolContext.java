@@ -53,7 +53,9 @@ public class PoolContext {
 
 
     public void addPoolInfo(List<PoolInfo> poolInfoList) {
-        this.clientInfo.getPoolList().addAll(poolInfoList);
+        if (!CollectionUtils.isEmpty(poolInfoList)) {
+            this.clientInfo.getPoolList().addAll(poolInfoList);
+        }
     }
 
     public List<Detector> getDetectorList() {
