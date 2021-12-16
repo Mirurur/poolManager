@@ -34,7 +34,7 @@ public class DefaultDetector implements Detector {
     public void detect() {
         log.info("start to detect pool info");
         Map<String, Executor> beans = SpringUtil.getBeansWithClass(Executor.class);
-        workerMap.get(WorkerGroupConstant.GETTER).forEach(worker -> poolContext.addPoolInfo(worker.handler(beans)));
+        workerMap.get(WorkerGroupConstant.GETTER).forEach(worker -> poolContext.addPoolInfo(worker.doGetter(beans)));
     }
 
 

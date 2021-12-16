@@ -6,6 +6,7 @@ import com.amateur.info.PoolInfo;
 import com.amateur.worker.Worker;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 
@@ -38,6 +39,9 @@ public class PoolContext {
     }
 
     public void addWorker(Worker worker) {
+        if (StringUtils.isEmpty(worker.tag())) {
+            throw new RuntimeException("add worker failed,worker tag must not be null");
+        }
         List<Worker> workers = workerMap.get(worker.tag());
         if (CollectionUtils.isEmpty(workers)) {
             workers = new LinkedList<>();

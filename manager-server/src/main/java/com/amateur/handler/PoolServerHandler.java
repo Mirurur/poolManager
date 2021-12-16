@@ -2,8 +2,8 @@ package com.amateur.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.amateur.detector.PoolInfoContainer;
+import com.amateur.info.PoolInfo;
 import com.amateur.info.PoolParam;
-import com.amateur.info.ClientPoolInfo;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author yeyu
@@ -36,21 +37,23 @@ public class PoolServerHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-        log.info("receive from client:{}",msg);
-
+        log.info("receive from client:{}", msg);
+        List<PoolInfo> poolInfos = JSON.parseArray(msg, PoolInfo.class);
+        String remoteAddress = ctx.channel().remoteAddress().toString().substring(1);
+        poolInfoContainer.getMap().put(remoteAddress, poolInfos);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         CHANNEL_GROUP.add(ctx.channel());
-        log.info("client [{}] is active",ctx.channel().remoteAddress().toString().substring(1));
+        log.info("client [{}] is active", ctx.channel().remoteAddress().toString().substring(1));
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         String remoteAddress = ctx.channel().remoteAddress().toString().substring(1);
         poolInfoContainer.clearByAddress(remoteAddress);
-        log.info("client [{}] is inactive",remoteAddress);
+        log.info("client [{}] is inactive", remoteAddress);
     }
 
     @Override
@@ -58,17 +61,17 @@ public class PoolServerHandler extends SimpleChannelInboundHandler<String> {
         String remoteAddress = ctx.channel().remoteAddress().toString().substring(1);
         poolInfoContainer.clearByAddress(remoteAddress);
         ctx.close();
-        log.info("client [{}] is inactive because of exception",remoteAddress,cause);
+        log.info("client [{}] is inactive because of exception", remoteAddress, cause);
     }
 
     public Boolean modifyPoolInfo(PoolParam param) {
-        ClientPoolInfo clientPoolInfo = poolInfoContainer.getMap().get(param.getRemoteAddress());
-        if (clientPoolInfo == null || CollectionUtils.isEmpty(clientPoolInfo.getPoolInfoList())) {
+        List<PoolInfo> poolInfos = poolInfoContainer.getMap().get(param.getRemoteAddress());
+        if (CollectionUtils.isEmpty(poolInfos)) {
             return Boolean.FALSE;
         }
 
-        ClientPoolInfo.PoolInfo poolInfo = clientPoolInfo.getPoolInfoList().stream()
-                .filter(it -> it.getBeanName().equals(param.getBeanName()))
+        PoolInfo poolInfo = poolInfos.stream()
+                .filter(it -> it.getPoolBeanName().equals(param.getBeanName()))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("not found beanName：" + param.getBeanName()));
 

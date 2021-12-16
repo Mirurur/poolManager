@@ -2,8 +2,12 @@ package com.amateur.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.amateur.config.Properties;
+import com.amateur.constant.WorkerGroupConstant;
 import com.amateur.context.PoolContext;
+import com.amateur.info.PoolParam;
 import com.amateur.listener.RetryListener;
+import com.amateur.util.SpringUtil;
+import com.amateur.worker.Worker;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -12,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * @author yeyu
@@ -41,7 +47,9 @@ public class PoolClientHandler extends SimpleChannelInboundHandler<String> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
         log.info("receive from server:{}", msg);
-        //TODO: 更新线程池信息
+        PoolParam poolParam = JSON.parseObject(msg, PoolParam.class);
+        Map<String, Executor> beans = SpringUtil.getBeansWithClass(Executor.class);
+        poolContext.getWorkerMap().get(WorkerGroupConstant.SETTER).forEach(worker -> worker.doSetter(beans,poolParam));
     }
 
     @Override

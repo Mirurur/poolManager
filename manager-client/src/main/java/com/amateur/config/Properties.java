@@ -20,26 +20,6 @@ public class Properties {
 
     private int maxRetryTimes = 3;
 
-    private String detectorPackage = "";
-
-    private String workerPackage = "";
-
-    public String getWorkerPackage() {
-        return workerPackage;
-    }
-
-    public void setWorkerPackage(String workerPackage) {
-        this.workerPackage = workerPackage;
-    }
-
-    public String getDetectorPackage() {
-        return detectorPackage;
-    }
-
-    public void setDetectorPackage(String detectorPackage) {
-        this.detectorPackage = detectorPackage;
-    }
-
     public List<String> getAddressList() {
         return addressList;
     }

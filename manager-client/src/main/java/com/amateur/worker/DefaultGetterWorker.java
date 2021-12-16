@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class DefaultGetterWorker implements Worker {
 
     @Override
-    public List<PoolInfo> handler(Map<String, Executor> beans) {
+    public List<PoolInfo> doGetter(Map<String, Executor> beans) {
         List<PoolInfo> list = new ArrayList<>();
         beans.forEach((k,v)->{
             if (v instanceof ThreadPoolExecutor) {

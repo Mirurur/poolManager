@@ -1,9 +1,12 @@
 package com.amateur.detector;
 
+import com.amateur.info.ClientInfo;
 import com.amateur.info.ClientPoolInfo;
+import com.amateur.info.PoolInfo;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class PoolInfoContainer {
 
-    private Map<String, ClientPoolInfo> map = new ConcurrentHashMap<>(16);
+    private Map<String, List<PoolInfo>> map = new ConcurrentHashMap<>(16);
 
     public void clear() {
         map.clear();
