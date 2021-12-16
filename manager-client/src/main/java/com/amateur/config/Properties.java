@@ -11,6 +11,7 @@ import java.util.List;
 /**
  * @author yeyu
  * @date 2021/12/13 9:26
+ * 配置类，服务端连接地址与重连次数配置
  */
 @ConfigurationProperties(prefix = "pool")
 @Component

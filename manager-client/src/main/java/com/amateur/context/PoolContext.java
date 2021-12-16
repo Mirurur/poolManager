@@ -13,6 +13,7 @@ import java.util.*;
 /**
  * @author yeyu
  * @date 2021/12/14 18:00
+ * 上下文信息，保存了Detector集合，Worker集合，与线程池信息
  */
 @Component
 public class PoolContext {

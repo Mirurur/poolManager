@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 /**
  * @author yeyu
  * @date 2021/12/9 16:55
+ * 加入到SpringBoot自启动配置中
  */
 @Configuration
 @EnableConfigurationProperties(Properties.class)

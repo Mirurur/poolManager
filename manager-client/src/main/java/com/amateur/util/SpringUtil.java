@@ -12,6 +12,7 @@ import java.util.Map;
 
 /**
  * @author sun
+ * Spring容器操作工具类
  */
 @Component
 public class SpringUtil implements ApplicationContextAware {

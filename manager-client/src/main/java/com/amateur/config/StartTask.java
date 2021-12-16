@@ -11,6 +11,7 @@ import java.util.Map;
 /**
  * @author yeyu
  * @date 2021/12/15 11:26
+ * 启动Spring容器时，同时启动该任务：1.启动客户端 2.收集线程池信息
  */
 public class StartTask implements Runnable {
 
