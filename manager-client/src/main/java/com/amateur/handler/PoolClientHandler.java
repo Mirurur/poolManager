@@ -40,7 +40,7 @@ public class PoolClientHandler extends SimpleChannelInboundHandler<String> {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
-            ctx.writeAndFlush(JSON.toJSONString(poolContext.getClientInfo()));
+            ctx.writeAndFlush(JSON.toJSONString(poolContext.getClientInfo().getPoolList()));
         }
     }
 
