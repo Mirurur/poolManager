@@ -1,4 +1,4 @@
-package com.amateur.pool.util;
+package com.amateur.util;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

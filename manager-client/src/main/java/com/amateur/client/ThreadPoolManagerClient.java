@@ -1,13 +1,10 @@
 package com.amateur.client;
 
-import com.amateur.config.ConnectConfig;
+import com.amateur.config.Properties;
 import com.amateur.handler.PoolClientHandler;
 import com.amateur.listener.RetryListener;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -16,6 +13,7 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
@@ -23,46 +21,60 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author yeyu
  * @date 2021/11/22 14:55
+ * Netty 客户端
  */
 @Slf4j
-public class ThreadPoolManagerClient implements Runnable, DisposableBean {
+@Component
+public class ThreadPoolManagerClient implements DisposableBean {
 
     @Resource
     private PoolClientHandler poolClientHandler;
 
-    private final ConnectConfig connectConfig;
+    @Resource
+    private Properties properties;
 
-    private final EventLoopGroup workGroup;
+    @Resource
+    private RetryListener retryListener;
 
-    private final RetryListener retryListener;
+    private EventLoopGroup workGroup;
 
-    public ThreadPoolManagerClient(ConnectConfig connectConfig) {
-        this.connectConfig = connectConfig;
-        this.workGroup = new NioEventLoopGroup();
-        this.retryListener = new RetryListener(connectConfig);
+    private Bootstrap bootstrap;
+
+    public ThreadPoolManagerClient() {
+        init();
     }
 
-    @Override
-    public void run() {
+    private void init() {
+        workGroup = new NioEventLoopGroup();
+        bootstrap = new Bootstrap();
+        bootstrap.group(workGroup)
+                .channel(NioSocketChannel.class)
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        socketChannel.pipeline()
+                                // 使用JSON数据格式进行传输 所以用String编解码器
+                                .addLast(new StringEncoder())
+                                .addLast(new StringDecoder())
+                                // 当没有发生写事件时，每隔3秒向服务端发送连接池信息
+                                .addLast(new IdleStateHandler(0, 3, 0, TimeUnit.SECONDS))
+                                .addLast(poolClientHandler);
+                    }
+                });
+    }
+
+    public void connect() {
         try {
-            Bootstrap bootstrap = new Bootstrap();
-            bootstrap.group(workGroup)
-                    .channel(NioSocketChannel.class)
-                    .option(ChannelOption.SO_KEEPALIVE, true)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            socketChannel.pipeline()
-                                    // 使用JSON数据格式进行传输 所以用String编解码器
-                                    .addLast(new StringEncoder())
-                                    .addLast(new StringDecoder())
-                                    // 当没有发生写事件时，每隔3秒向服务端发送连接池信息
-                                    .addLast(new IdleStateHandler(0, 3, 0, TimeUnit.SECONDS))
-                                    .addLast(poolClientHandler);
-                        }
-                    });
-            ChannelFuture channelFuture = bootstrap.connect(connectConfig.getDefaultConnectAddress()).addListener(retryListener);
-            channelFuture.channel().closeFuture().sync();
+            ChannelFuture channelFuture = bootstrap.connect(properties.getDefaultConnectAddress()).addListener(retryListener);
+            channelFuture.channel().closeFuture().addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                    if (channelFuture.isSuccess()) {
+                        log.info("pool client channel has closed");
+                    }
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
             workGroup.shutdownGracefully();

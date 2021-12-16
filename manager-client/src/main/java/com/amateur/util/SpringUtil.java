@@ -1,6 +1,7 @@
 package com.amateur.util;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ import java.util.Map;
 
 /**
  * @author sun
+ * Spring容器操作工具类
  */
 @Component
 public class SpringUtil implements ApplicationContextAware {
@@ -19,7 +21,7 @@ public class SpringUtil implements ApplicationContextAware {
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-            SpringUtil.applicationContext = applicationContext;
+        SpringUtil.applicationContext = applicationContext;
     }
 
     public static ApplicationContext getApplicationContext() {
@@ -36,10 +38,16 @@ public class SpringUtil implements ApplicationContextAware {
         return getApplicationContext().getBean(clazz);
     }
 
+    public static <T> Map<String, T> getBeansWithClass(Class<T> clazz) {
+        checkApplicationContext();
+        return getApplicationContext().getBeansOfType(clazz,false,false);
+    }
+
     public static <T extends Annotation> Map<String, Object> getBeansWithAnnotation(Class<T> annotationType) {
         checkApplicationContext();
         return getApplicationContext().getBeansWithAnnotation(annotationType);
     }
+
 
     private static void checkApplicationContext() {
         Assert.notNull(applicationContext, "applicationContext未注入");

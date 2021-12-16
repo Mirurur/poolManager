@@ -1,6 +1,7 @@
 package com.amateur.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -10,9 +11,11 @@ import java.util.List;
 /**
  * @author yeyu
  * @date 2021/12/13 9:26
+ * 配置类，服务端连接地址与重连次数配置
  */
 @ConfigurationProperties(prefix = "pool")
-public class ConnectConfig {
+@Component
+public class Properties {
 
     private List<String> addressList = Collections.singletonList("localhost:8888");
 

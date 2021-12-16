@@ -1,10 +1,14 @@
 package com.amateur.handler;
 
 import com.alibaba.fastjson.JSON;
-import com.amateur.config.ConnectConfig;
+import com.alibaba.fastjson.JSONArray;
+import com.amateur.config.Properties;
+import com.amateur.constant.WorkerGroupConstant;
+import com.amateur.context.PoolContext;
+import com.amateur.info.PoolParam;
 import com.amateur.listener.RetryListener;
-import com.amateur.pool.Detector;
-import com.amateur.pool.info.PoolParam;
+import com.amateur.util.SpringUtil;
+import com.amateur.worker.Worker;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -13,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * @author yeyu
@@ -24,35 +30,38 @@ import javax.annotation.Resource;
 public class PoolClientHandler extends SimpleChannelInboundHandler<String> {
 
     @Resource
-    private Detector detector;
+    private Properties properties;
 
     @Resource
-    private ConnectConfig connectConfig;
+    private PoolContext poolContext;
 
+    @Resource
+    private RetryListener retryListener;
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
-            ctx.writeAndFlush(JSON.toJSONString(detector.saveClientInfo()));
+            ctx.writeAndFlush(JSON.toJSONString(poolContext.getClientInfo()));
         }
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-        System.out.println("receive from server:" + msg);
+        log.info("receive from server:{}", msg);
         PoolParam poolParam = JSON.parseObject(msg, PoolParam.class);
-        //TODO: 更新线程池信息
+        Map<String, Executor> beans = SpringUtil.getBeansWithClass(Executor.class);
+        poolContext.getWorkerMap().get(WorkerGroupConstant.SETTER).forEach(worker -> worker.doSetter(beans,poolParam));
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ctx.writeAndFlush(JSON.toJSONString(detector.saveClientInfo()));
+        ctx.writeAndFlush(JSON.toJSONString(poolContext.getClientInfo()));
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         log.warn("disconnect from server,try to reconnect server");
-        ctx.channel().connect(connectConfig.getDefaultConnectAddress()).addListener(new RetryListener(connectConfig));
+        ctx.channel().connect(properties.getDefaultConnectAddress()).addListener(retryListener);
     }
 
     @Override

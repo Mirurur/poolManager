@@ -1,9 +1,6 @@
-package com.amateur.pool.info;
+package com.amateur.info;
 
 import lombok.Data;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * 线程池信息
@@ -12,10 +9,6 @@ import java.util.Map;
  */
 @Data
 public class PoolInfo {
-    /**
-     * 全限定类名
-     */
-    private String fullClassName;
 
     /**
      * 线程池Bean名称
@@ -32,5 +25,4 @@ public class PoolInfo {
 
     private String threadFactoryFullyClassName;
 
-    private String handlerFullyClassName;
 }
