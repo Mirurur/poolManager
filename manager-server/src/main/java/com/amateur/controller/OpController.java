@@ -1,10 +1,9 @@
 package com.amateur.controller;
 
-import com.amateur.handler.PoolServerHandler;
 import com.amateur.detector.PoolInfoContainer;
+import com.amateur.handler.PoolServerHandler;
 import com.amateur.info.PoolInfo;
 import com.amateur.info.PoolParam;
-import com.amateur.info.ClientPoolInfo;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;

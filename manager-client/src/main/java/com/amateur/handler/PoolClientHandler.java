@@ -1,6 +1,7 @@
 package com.amateur.handler;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.amateur.config.Properties;
 import com.amateur.constant.WorkerGroupConstant;
 import com.amateur.context.PoolContext;
@@ -40,7 +41,7 @@ public class PoolClientHandler extends SimpleChannelInboundHandler<String> {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
-            ctx.writeAndFlush(JSON.toJSONString(poolContext.getClientInfo().getPoolList()));
+            ctx.writeAndFlush(JSON.toJSONString(poolContext.getClientInfo()));
         }
     }
 

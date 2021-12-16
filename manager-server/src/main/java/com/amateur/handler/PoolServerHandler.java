@@ -1,7 +1,9 @@
 package com.amateur.handler;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.amateur.detector.PoolInfoContainer;
+import com.amateur.info.ClientInfo;
 import com.amateur.info.PoolInfo;
 import com.amateur.info.PoolParam;
 import io.netty.channel.Channel;
@@ -38,7 +40,8 @@ public class PoolServerHandler extends SimpleChannelInboundHandler<String> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
         log.info("receive from client:{}", msg);
-        List<PoolInfo> poolInfos = JSON.parseArray(msg, PoolInfo.class);
+        ClientInfo clientInfo = JSON.parseObject(msg, ClientInfo.class);
+        List<PoolInfo> poolInfos = clientInfo.getPoolList();
         String remoteAddress = ctx.channel().remoteAddress().toString().substring(1);
         poolInfoContainer.getMap().put(remoteAddress, poolInfos);
     }
