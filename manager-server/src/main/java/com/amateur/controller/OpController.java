@@ -2,11 +2,13 @@ package com.amateur.controller;
 
 import com.amateur.handler.PoolServerHandler;
 import com.amateur.detector.PoolInfoContainer;
+import com.amateur.info.PoolInfo;
 import com.amateur.info.PoolParam;
 import com.amateur.info.ClientPoolInfo;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,7 +31,7 @@ public class OpController {
     }
 
     @GetMapping("all")
-    public Map<String, ClientPoolInfo> all() {
+    public Map<String, List<PoolInfo>> all() {
         return container.getMap();
     }
 }
